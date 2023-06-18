@@ -81,7 +81,7 @@ export async function installFlutter(
   flutterChannel: string
 ): Promise<string> {
   const archivePath = await downloadArchive(
-    platform,
+    resolveOsName(platform),
     arch,
     flutterVersion,
     flutterChannel
