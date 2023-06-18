@@ -33,7 +33,7 @@ test("resolves os name for linux", () => {
 });
 
 test("builds archive download url", () => {
-  const platform = "macos";
+  const platform = "darwin";
   const arch = "x64";
   const flutterVersion = "3.10.5";
   const flutterChannel = "stable";
@@ -51,7 +51,7 @@ test("builds archive download url", () => {
 });
 
 test("builds archive download url for arm64", () => {
-  const platform = "macos";
+  const platform = "darwin";
   const arch = "arm64";
   const flutterVersion = "3.10.5";
   const flutterChannel = "stable";
@@ -69,7 +69,7 @@ test("builds archive download url for arm64", () => {
 });
 
 test("builds archive download url for windows", () => {
-  const platform = "windows";
+  const platform = "win32";
   const arch = "x64";
   const flutterVersion = "3.10.5";
   const flutterChannel = "stable";

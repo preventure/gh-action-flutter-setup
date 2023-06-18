@@ -19,11 +19,12 @@ export function buildArchiveDownloadUrl(
   flutterVersion: string,
   flutterChannel: string
 ): string {
-  if (platform === "macos" && arch === "arm64") {
-    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${platform}/flutter_${platform}_arm64_${flutterVersion}-${flutterChannel}.zip`;
+  const osName = resolveOsName(platform);
+  if (osName === "macos" && arch === "arm64") {
+    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}.zip`;
   }
 
-  return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${platform}/flutter_${platform}_${flutterVersion}-${flutterChannel}.zip`;
+  return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}.zip`;
 }
 
 async function downloadArchive(
@@ -81,7 +82,7 @@ export async function installFlutter(
   flutterChannel: string
 ): Promise<string> {
   const archivePath = await downloadArchive(
-    resolveOsName(platform),
+    platform,
     arch,
     flutterVersion,
     flutterChannel
