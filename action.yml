@@ -6,7 +6,7 @@ inputs:
     required: false
     description: 'the flutter version to install'
     default: 'any'
-  channel:
+  flutter-channel:
     required: false
     description: 'the flutter channel to install'
     default: 'stable'

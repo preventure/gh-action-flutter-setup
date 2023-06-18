@@ -22,4 +22,4 @@ jobs:
       - uses: ./
         with:
           flutter-version: '3.10.5'
-          channel: 'stable'
+          flutter-channel: 'stable'
