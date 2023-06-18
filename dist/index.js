@@ -55,10 +55,11 @@ function resolveOsName(os) {
 }
 exports.resolveOsName = resolveOsName;
 function buildArchiveDownloadUrl(platform, arch, flutterVersion, flutterChannel) {
-    if (platform === "macos" && arch === "arm64") {
-        return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${platform}/flutter_${platform}_arm64_${flutterVersion}-${flutterChannel}.zip`;
+    const osName = resolveOsName(platform);
+    if (osName === "macos" && arch === "arm64") {
+        return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}.zip`;
     }
-    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${platform}/flutter_${platform}_${flutterVersion}-${flutterChannel}.zip`;
+    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}.zip`;
 }
 exports.buildArchiveDownloadUrl = buildArchiveDownloadUrl;
 function downloadArchive(platform, arch, flutterVersion, flutterChannel) {
