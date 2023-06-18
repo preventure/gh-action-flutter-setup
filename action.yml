@@ -1,0 +1,18 @@
+name: "Flutter Setup Action"
+description: 'Setup Flutter SDK'
+author: 'Nilo <nbarpujari@bardavon.com>'
+inputs:
+  flutter-version:
+    required: false
+    description: 'the flutter version to install'
+    default: 'any'
+  channel:
+    required: false
+    description: 'the flutter channel to install'
+    default: 'stable'
+outputs:
+  archive-download-url:
+    description: 'the url to download the flutter archive'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
