@@ -104,10 +104,25 @@ test("builds archive download url for linux", () => {
   );
 });
 
-test("install flutter", async () => {
+test("install flutter - macos", async () => {
   const platform = "macos";
   const arch = "x64";
   const flutterVersion = "3.10.5";
+  const flutterChannel = "stable";
+  const flutterPath = await installFlutter(
+    platform,
+    arch,
+    flutterVersion,
+    flutterChannel
+  );
+  expect(flutterPath.endsWith("flutter/bin")).toBe(true);
+  expect(fs.existsSync(path.join(flutterPath, "flutter"))).toBe(true);
+});
+
+test("install flutter - linux", async () => {
+  const platform = "linux";
+  const arch = "x64";
+  const flutterVersion = "3.7.12";
   const flutterChannel = "stable";
   const flutterPath = await installFlutter(
     platform,

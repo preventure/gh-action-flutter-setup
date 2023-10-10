@@ -5,6 +5,7 @@ import * as fs from "fs";
 export function resolveOsName(os: string): string {
   switch (os) {
     case "darwin":
+    case "macos":
       return "macos";
     case "win32":
       return "windows";
@@ -48,12 +49,17 @@ async function downloadArchive(
   );
   if (process.env.HOME === undefined) throw new Error("HOME is undefined");
 
-  const filename = `flutter.zip`;
-  const destination = path.join(process.env.HOME, filename);
+  const filename = url.split("/").pop();
+  if (!filename) {
+    throw new Error(`Cannot extract filename from url ${url}`);
+  }
+  const ext = extension(resolveOsName(platform));
+  const destination = path.join(process.env.HOME, `flutter${ext}`);
 
   if (process.env.NODE_ENV === "test") {
+    const file = `flutter-sdk${ext}`;
     fs.copyFileSync(
-      path.join(__dirname, "..", "test", "resources", "flutter-sdk.zip"),
+      path.join(__dirname, "..", "test", "resources", file),
       destination
     );
     return destination;
@@ -94,8 +100,35 @@ export async function installFlutter(
     flutterVersion,
     flutterChannel
   );
-  const destination = await unzipArchive(archivePath);
+  const destination = await extractArchive(archivePath);
   deleteArchive(archivePath);
   const flutterHome = path.join(destination, "bin");
   return flutterHome;
+}
+
+async function extractArchive(archivePath: string): Promise<string> {
+  if (archivePath.endsWith(".zip")) {
+    return unzipArchive(archivePath);
+  } else if (archivePath.match(tarExtensionRegex)) {
+    return untarArchive(archivePath);
+  }
+  throw new Error(`Unexpected archive extension, filename ${archivePath}`);
+}
+
+const tarExtensionRegex = /\.tar\.\w+$/;
+
+async function untarArchive(archivePath: string): Promise<string> {
+  const tarExtension = (archivePath.match(tarExtensionRegex) ?? [])[0];
+  const destination = path.join(
+    path.dirname(archivePath),
+    path.basename(archivePath, tarExtension)
+  );
+  if (!fs.existsSync(destination)) {
+    fs.mkdirSync(destination);
+  }
+  await exec.exec("tar", ["-xf", archivePath, "-C", destination], {
+    errStream: process.stdout,
+    failOnStdErr: true
+  });
+  return destination;
 }
