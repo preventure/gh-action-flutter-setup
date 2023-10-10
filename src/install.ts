@@ -20,11 +20,18 @@ export function buildArchiveDownloadUrl(
   flutterChannel: string
 ): string {
   const osName = resolveOsName(platform);
+  const ext = extension(osName);
   if (osName === "macos" && arch === "arm64") {
-    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}.zip`;
+    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}${ext}`;
   }
+  return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}${ext}`;
+}
 
-  return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}.zip`;
+function extension(osName: string): string {
+  if (osName === "linux") {
+    return ".tar.xz";
+  }
+  return ".zip";
 }
 
 async function downloadArchive(

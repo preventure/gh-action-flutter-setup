@@ -89,7 +89,7 @@ test("builds archive download url for windows", () => {
 test("builds archive download url for linux", () => {
   const platform = "linux";
   const arch = "arm64";
-  const flutterVersion = "3.10.5";
+  const flutterVersion = "3.7.12";
   const flutterChannel = "stable";
 
   const archiveDownloadUrl = buildArchiveDownloadUrl(
@@ -100,7 +100,7 @@ test("builds archive download url for linux", () => {
   );
 
   expect(archiveDownloadUrl).toBe(
-    "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.5-stable.zip"
+    "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.12-stable.tar.xz"
   );
 });
 
