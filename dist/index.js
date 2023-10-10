@@ -46,6 +46,7 @@ const fs = __importStar(__nccwpck_require__(147));
 function resolveOsName(os) {
     switch (os) {
         case "darwin":
+        case "macos":
             return "macos";
         case "win32":
             return "windows";
@@ -56,21 +57,33 @@ function resolveOsName(os) {
 exports.resolveOsName = resolveOsName;
 function buildArchiveDownloadUrl(platform, arch, flutterVersion, flutterChannel) {
     const osName = resolveOsName(platform);
+    const ext = extension(osName);
     if (osName === "macos" && arch === "arm64") {
-        return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}.zip`;
+        return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_arm64_${flutterVersion}-${flutterChannel}${ext}`;
     }
-    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}.zip`;
+    return `https://storage.googleapis.com/flutter_infra_release/releases/stable/${osName}/flutter_${osName}_${flutterVersion}-${flutterChannel}${ext}`;
 }
 exports.buildArchiveDownloadUrl = buildArchiveDownloadUrl;
+function extension(osName) {
+    if (osName === "linux") {
+        return ".tar.xz";
+    }
+    return ".zip";
+}
 function downloadArchive(platform, arch, flutterVersion, flutterChannel) {
     return __awaiter(this, void 0, void 0, function* () {
         const url = buildArchiveDownloadUrl(platform, arch, flutterVersion, flutterChannel);
         if (process.env.HOME === undefined)
             throw new Error("HOME is undefined");
-        const filename = `flutter.zip`;
-        const destination = path.join(process.env.HOME, filename);
+        const filename = url.split("/").pop();
+        if (!filename) {
+            throw new Error(`Cannot extract filename from url ${url}`);
+        }
+        const ext = extension(resolveOsName(platform));
+        const destination = path.join(process.env.HOME, `flutter${ext}`);
         if (process.env.NODE_ENV === "test") {
-            fs.copyFileSync(path.join(__dirname, "..", "test", "resources", "flutter-sdk.zip"), destination);
+            const file = `flutter-sdk${ext}`;
+            fs.copyFileSync(path.join(__dirname, "..", "test", "resources", file), destination);
             return destination;
         }
         yield exec.exec("curl", ["-o", destination, "-L", url]);
@@ -96,13 +109,40 @@ function deleteArchive(archivePath) {
 function installFlutter(platform, arch, flutterVersion, flutterChannel) {
     return __awaiter(this, void 0, void 0, function* () {
         const archivePath = yield downloadArchive(platform, arch, flutterVersion, flutterChannel);
-        const destination = yield unzipArchive(archivePath);
+        const destination = yield extractArchive(archivePath);
         deleteArchive(archivePath);
         const flutterHome = path.join(destination, "bin");
         return flutterHome;
     });
 }
 exports.installFlutter = installFlutter;
+function extractArchive(archivePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (archivePath.endsWith(".zip")) {
+            return unzipArchive(archivePath);
+        }
+        else if (archivePath.match(tarExtensionRegex)) {
+            return untarArchive(archivePath);
+        }
+        throw new Error(`Unexpected archive extension, filename ${archivePath}`);
+    });
+}
+const tarExtensionRegex = /\.tar\.\w+$/;
+function untarArchive(archivePath) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const tarExtension = ((_a = archivePath.match(tarExtensionRegex)) !== null && _a !== void 0 ? _a : [])[0];
+        const destination = path.join(path.dirname(archivePath), path.basename(archivePath, tarExtension));
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination);
+        }
+        yield exec.exec("tar", ["-xf", archivePath, "-C", destination], {
+            errStream: process.stdout,
+            failOnStdErr: true
+        });
+        return destination;
+    });
+}
 
 
 /***/ }),
